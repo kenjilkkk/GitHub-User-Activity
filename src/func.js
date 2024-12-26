@@ -80,18 +80,16 @@ function issueCount(obj) {
 function pullCount(obj) {
 		
 	let mapPull = new Map();
-	let mapTime = new Map();
     
 	for(let dt of obj) {
 		if(dt.type === "PullRequestEvent") {
-			mapPull.set(dt.id, dt.repo.name)
-			mapTime.set(dt.id, dt.created_at);
+			mapPull.set(dt.id, {name: dt.repo.name, date: dt.created_at});
 		}
 	}
 
 	for (let id of mapPull.keys()) {
 		let index = mapTime.get(id).indexOf('T')
-		console.log(`- Pulled from ${mapPull.get(id)} ${mapTime.get(id).slice(0,index).replaceAll('-','/')}`)
+		console.log(`- Pulled from ${mapPull.get(id).name} ${mapPull.get(id).date.slice(0,index).replaceAll('-','/')}`)
 	}
 } 
 
