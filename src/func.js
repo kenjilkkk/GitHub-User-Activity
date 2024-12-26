@@ -1,14 +1,26 @@
-#!/usr/bin/env node
 async function getData(user) {
 	const url = `https://api.github.com/users/${user}/events`
 	const url_starred = `https://api.github.com/users/${user}/starred`
 
-	let result = await Promise.all([
-    	fetch(url).then((response) => response.json()),  // Fix here
-    	fetch(url_starred).then(response => response.json())  // Fix here
-	]);
+	try{
+		let result = await Promise.all([
+		    fetch(url).then(response =>{
+		    	if(response.status != 200) {
+		    		throw new Error('Not 200. Username doesnt exists or network error');
+		    	}
+		    	return response.json()}),  // Fix here
+		    fetch(url_starred).then(response => {
+		    	if(response.status != 200) {
+		    		throw new Error('Not 200. Username doesnt exists or network error');
+		    	}
+		    	return response.json()})  // Fix here
+		]);
 
-	return result;
+		return result;
+	}catch(err) {
+		throw err;
+	}
+
 }
 
 
@@ -18,8 +30,6 @@ function commitCount(obj) {
 	let repos = new Set();
 	let commits = {};
 
-		
-		
 	for(let dt of obj) {
 		if(dt.type === "PushEvent") {
 			let size = dt.payload.size;
@@ -54,20 +64,16 @@ function commitCount(obj) {
 
 function issueCount(obj) {
 	let mapIssue = new Map();
-	let repos = new Set();
-	let issues = {};
-	//let types = ['opened', 'edited', 'closed', 'reopened', 'assigned', 'unassigned', 'labeled', 'unlabeled'];
 
 	for(let dt of obj) {
 		if(dt.type === "IssuesEvent") {
 			// Tipos de issue: opened, edited, closed, reopened, assigned, unassigned, labeled ou unlabeled
-			issues[dt.id] = dt.payload.action;
-			mapIssue.set(dt.id, dt.repo.name);
+			mapIssue.set(dt.id, {name: dt.repo.name, action: dt.payload.action} );
 		}
 	}
 
-	for(let id of Object.keys(issues)) {
-		console.log(`- ${issues[id]} a issue in ${mapIssue.get(id)}` )	
+	for(let id of mapIssue.keys()) {
+		console.log(`- ${mapIssue.get(id).action} a issue in ${mapIssue.get(id).name}` )	
 	}		
 }
 
