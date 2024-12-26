@@ -88,7 +88,7 @@ function pullCount(obj) {
 	}
 
 	for (let id of mapPull.keys()) {
-		let index = mapTime.get(id).indexOf('T')
+		let index = mapPull.get(id).date.indexOf('T')
 		console.log(`- Pulled from ${mapPull.get(id).name} ${mapPull.get(id).date.slice(0,index).replaceAll('-','/')}`)
 	}
 } 
