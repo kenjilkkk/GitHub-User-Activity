@@ -96,7 +96,10 @@ function pullCount(obj) {
 
 	for (let id of mapPull.keys()) {
 		let index = mapPull.get(id).date.indexOf('T')
+<<<<<<< HEAD
 		console.log('---------------------------------------------------------');
+=======
+>>>>>>> 7297a57e9cfb7d7c9ca83226713c8fdf3b299c82
 		console.log(`- Pulled from ${mapPull.get(id).name} ${mapPull.get(id).date.slice(0,index).replaceAll('-','/')}`)
 		console.log('---------------------------------------------------------');
 	}
