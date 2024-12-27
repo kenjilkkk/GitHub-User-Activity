@@ -1,15 +1,18 @@
 async function getData(user) {
 	const url = `https://api.github.com/users/${user}/events`
 	const url_starred = `https://api.github.com/users/${user}/starred`
-
+	const header = {
+		'User-Agent' : 'kenjilkkk'
+	}
 	try{
 		let result = await Promise.all([
-		    fetch(url).then(response =>{
+		    fetch(url, {header}).then(response =>{
 		    	if(response.status != 200) {
+		    		console.log(response.statusText);
 		    		throw new Error('Not 200. Username doesnt exists or network error');
 		    	}
 		    	return response.json()}),  // Fix here
-		    fetch(url_starred).then(response => {
+		    fetch(url_starred, {header}).then(response => {
 		    	if(response.status != 200) {
 		    		throw new Error('Not 200. Username doesnt exists or network error');
 		    	}
@@ -22,7 +25,6 @@ async function getData(user) {
 	}
 
 }
-
 
 
 function commitCount(obj) {
@@ -57,10 +59,13 @@ function commitCount(obj) {
 	}
 		
 	for(let key of Object.keys(commits)) {
-		console.log(`- Pushed ${commits[key]} commits to ${key}`)
+		console.log('---------------------------------------------------------');
+		console.log(`- Pushed ${commits[key]} commits to ${key}`);
+		console.log('---------------------------------------------------------');
 
 	}		
 }
+
 
 function issueCount(obj) {
 	let mapIssue = new Map();
@@ -73,7 +78,9 @@ function issueCount(obj) {
 	}
 
 	for(let id of mapIssue.keys()) {
-		console.log(`- ${mapIssue.get(id).action} a issue in ${mapIssue.get(id).name}` )	
+		console.log('---------------------------------------------------------');
+		console.log(`- ${mapIssue.get(id).action} a issue in ${mapIssue.get(id).name}` );
+		console.log('---------------------------------------------------------');
 	}		
 }
 
@@ -88,8 +95,10 @@ function pullCount(obj) {
 	}
 
 	for (let id of mapPull.keys()) {
-		let index = mapTime.get(id).indexOf('T')
+		let index = mapPull.get(id).date.indexOf('T')
+		console.log('---------------------------------------------------------');
 		console.log(`- Pulled from ${mapPull.get(id).name} ${mapPull.get(id).date.slice(0,index).replaceAll('-','/')}`)
+		console.log('---------------------------------------------------------');
 	}
 } 
 
@@ -107,14 +116,30 @@ function deleteCount(obj) {
 	}
 
 	for(let ref of map.keys()) {
-		console.log(`Deleted ${map.get(ref).type}/${ref} at ${map.get(ref).time.slice(0, map.get(ref).time.indexOf('T'))}`) //adicionar a hora, posteriormente. Add time
+		console.log(`- Deleted ${map.get(ref).type}/${ref} at ${map.get(ref).time.slice(0, map.get(ref).time.indexOf('T'))}`) //adicionar a hora, posteriormente. Add time
+	}
+}
+
+function createCount(obj) {
+	for(let dt of obj) {
+		if(dt.type === 'CreateEvent' && dt.payload.ref_type !== 'repository') {
+			console.log('---------------------------------------------------------');
+			console.log(`- Created a new ${dt.payload.ref_type} at ${dt.payload.ref}`);
+			console.log('---------------------------------------------------------');
+		}else if(dt.type === 'CreateEvent') {
+			console.log('---------------------------------------------------------');
+			console.log('- Created a new repository');
+			console.log('---------------------------------------------------------');
+		}
 	}
 }
 
 function starredCount(obj) {
 	for (let dt of obj) {
-		console.log(`Starred ${dt.full_name}`)
-	}
+		console.log('---------------------------------------------------------');
+		console.log(`- Starred ${dt.full_name}`);
+		console.log('---------------------------------------------------------');	}
 }
 
-module.exports = { getData, commitCount, issueCount, pullCount, deleteCount, starredCount };
+
+module.exports = { getData, commitCount, issueCount, pullCount, deleteCount, createCount, starredCount };
